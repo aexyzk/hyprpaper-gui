@@ -1,4 +1,4 @@
-import pygame, os
+import pygame, os, toml
 
 from scripts.wallpaper import set_wallpaper
 
@@ -11,8 +11,9 @@ def main():
 
     home_dir = os.path.expanduser('~')
     path = f"{home_dir}/Pictures/Wallpapers"
+    preview_path = f"{home_dir}/Pictures/.wallpapers"
 
-    make_folder(path)
+    make_folder(path, preview_path)
     images_links = update_images(path, 5)
     images = import_images(images_links[0], path)
 
@@ -77,9 +78,11 @@ def update_images(path, offset):
             images.append((j,(i % offset, row_number)))
     return (images, row_number)
 
-def make_folder(path):
+def make_folder(path, preview_path):
     if not os.path.exists(path):
         os.makedirs(path)
+    if not os.path.exists(preview_path):
+        os.makedirs(preview_path)
 
 if __name__ == "__main__":
     main()
