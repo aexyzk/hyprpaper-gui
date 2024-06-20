@@ -11,5 +11,5 @@ path = f"{home_dir}/Pictures/Wallpapers"
 preview_path = f"{home_dir}/Pictures/.wallpapers"
 size = 128, 128
 
-wallpaper = "7.jpg"
+wallpaper = "idk.png"
 resize_images(wallpaper, path, preview_path, size)

@@ -5,17 +5,23 @@ from scripts.wallpaper import set_wallpaper
 def main():
     pygame.init()
 
-    screen = pygame.display.set_mode((1000,800))
-    pygame.display.set_caption("Set Wallpaper")
-    clock = pygame.time.Clock()
-
     home_dir = os.path.expanduser('~')
     path = f"{home_dir}/Pictures/Wallpapers"
     preview_path = f"{home_dir}/Pictures/.wallpapers"
 
     make_folder(path, preview_path)
-    images_links = update_images(path, 5)
-    images = import_images(images_links[0], path)
+    padding = 10
+    size = 128
+    colum_count = 8
+    
+    screen_width = ((colum_count * (size + padding)) + padding)
+
+    screen = pygame.display.set_mode((screen_width,800))
+    pygame.display.set_caption("Set Wallpaper")
+    clock = pygame.time.Clock()
+
+    images_links = update_images(preview_path, colum_count)
+    images = get_preview_images(images_links[0], preview_path, size, padding)
 
     offset = 0
     mouse_sens = 30
@@ -28,26 +34,34 @@ def main():
             if event.type == pygame.MOUSEBUTTONDOWN:
                 if event.button == 1:
                     for i, image in enumerate(images):
-                        rect = pygame.Rect(images_links[0][i][1][0] * 200, images_links[0][i][1][1] * 200, 200,200)
+                        rect = pygame.Rect(images_links[0][i][1][0] * size, images_links[0][i][1][1] * size, size,size)
                         if rect.collidepoint((pygame.mouse.get_pos()[0], pygame.mouse.get_pos()[1] - offset)):
                             set_wallpaper(os.path.join(path, images_links[0][i][0]))
 
                 if event.button == 4:
                     offset = min(offset + mouse_sens, 0)
                 elif event.button == 5:
-                    clamp = (images_links[1] * -200) + screen.get_height() - 200
+                    clamp = (images_links[1] * -size) + screen.get_height() - size
                     offset = max(offset - mouse_sens, clamp)
 
         screen.fill((25,25,25))
-        render(screen, images, offset)
+        for i, image in enumerate(images):
+            rect = pygame.Rect(
+                                images_links[0][i][1][0] * (size + padding) + padding,
+                                images_links[0][i][1][1] * (size + padding) + padding + offset,
+                                size,size)
+
+            pygame.draw.rect(screen, (35,35,35), rect)
+        render(screen, images, offset, size)
         pygame.display.flip()
         clock.tick(60)
 
-def render(screen, images, offset):
+def render(screen, images, offset, size):
     for image in images:
+        image_size = image[0].get_size()
         screen.blit(image[0], (image[1][0], image[1][1] + offset))
 
-def import_images(images_links, _path, max_image_size=(200, 200)):
+def get_preview_images(images_links, _path, size, padding):
     images = []
     for name, pos in images_links:
         try:
@@ -55,16 +69,21 @@ def import_images(images_links, _path, max_image_size=(200, 200)):
             image = pygame.image.load(path).convert()
             image_size = image.get_size()
 
-            size_ratio = (max_image_size[0] / image_size[0], max_image_size[1] / image_size[1])
-            scale_ratio = min(size_ratio[0], size_ratio[1])
+            #centered_pos = (
+            #    pos[0] * size + image_size[0] // 2,
+            #    pos[1] * size + image_size[1] // 2
+            #)
+            centered_pos = (
+                pos[0] * (size + padding) + padding + (size - image_size[0]) // 2,
+                pos[1] * (size + padding) + padding + (size - image_size[1]) // 2
+            )
 
-            scaled_image = pygame.transform.scale(image, (image_size[0] * scale_ratio, image_size[1] * scale_ratio))
+            #centered_pos = ((pos[0] * image_size[0]) + (image_size[0] // 2), (pos[1] * image_size[1]) + (image_size[1] // 2))
+            #rect_pos = ((pos[0] * image_size[0]) + (image_size[0] // 2), (pos[1] * image_size[1]) + (image_size[1] // 2))
 
-            centered_pos = ((pos[0] * max_image_size[0] - scaled_image.get_width() // 2) + 100, (pos[1] * max_image_size[1] - scaled_image.get_height() // 2) + 100)
-
-            images.append((scaled_image, centered_pos))
-        except: 
-            print(name)
+            images.append((image, centered_pos))
+        except Exception as e:
+            print(f"[ERROR] {name}: {e}")
 
     return images
 
@@ -76,6 +95,7 @@ def update_images(path, offset):
             if i % offset == offset - 1:
                 row_number += 1
             images.append((j,(i % offset, row_number)))
+    print(images)
     return (images, row_number)
 
 def make_folder(path, preview_path):
