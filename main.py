@@ -3,6 +3,7 @@ import threading
 
 from scripts.wallpaper import set_wallpaper
 from scripts.utils import *
+from scripts.preview import create_preview
 
 def main():
     pygame.init()
@@ -14,17 +15,15 @@ def main():
     make_folder(path, preview_path)
     padding = 10
     size = 128
-    colum_count = 8
+    column_count = 8
     
-    screen_width = ((colum_count * (size + padding)) + padding) + 10
+    screen_width = ((column_count * (size + padding)) + padding) + 10
 
     screen = pygame.display.set_mode((screen_width,800))
     pygame.display.set_caption("Set Wallpaper")
     clock = pygame.time.Clock()
 
-    preview_images_links = update_images(preview_path, colum_count)
-    images_links = update_images(path, colum_count)
-    images = get_preview_images(preview_images_links[0], preview_path, size, padding)
+    preview_images_links, images_links, images = reload_images(path, preview_path, column_count, size, padding)
 
     offset = 0
     mouse_sens = 30
@@ -48,7 +47,7 @@ def main():
                 if event.button == 1:
                     if bar_rect.collidepoint((pygame.mouse.get_pos()[0], pygame.mouse.get_pos()[1])):
                         if refresh_button_rect.collidepoint((pygame.mouse.get_pos()[0], pygame.mouse.get_pos()[1])):
-                            print("yo")
+                            create_previews(path, preview_path, size)
                         break
                     for i, image in enumerate(images):
                         rect = pygame.Rect(
@@ -123,11 +122,22 @@ def update_images(path, offset):
 def make_folder(path, preview_path):
     if not os.path.exists(path):
         os.makedirs(path)
+
+def create_previews(path, preview_path, size):
     if not os.path.exists(preview_path):
         os.makedirs(preview_path)
+    if os.path.exists(path):
+        row_number = 0
+        for i, j in enumerate(sorted(os.listdir(path))):
+            print(j)
+            create_preview(j, path, preview_path, (size, size))
 
-def reload_images(path, preview_path):
-    
+
+def reload_images(path, preview_path, column_count, size, padding):
+    preview_images_links = update_images(preview_path, column_count)
+    images_links = update_images(path, column_count)
+    images = get_preview_images(preview_images_links[0], preview_path, size, padding)
+    return preview_images_links, images_links, images
 
 if __name__ == "__main__":
     main()
