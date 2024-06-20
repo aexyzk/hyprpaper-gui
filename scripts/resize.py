@@ -6,10 +6,11 @@ def resize_images (wallpaper, path, new_path, size):
         im.thumbnail(size)
         im.save(os.path.join(preview_path, wallpaper) + ".thumbnail", "PNG")
 
-home_dir = os.path.expanduser('~')
-path = f"{home_dir}/Pictures/Wallpapers"
-preview_path = f"{home_dir}/Pictures/.wallpapers"
-size = 128, 128
+if __name__ == "__main__":
+    home_dir = os.path.expanduser('~')
+    path = f"{home_dir}/Pictures/Wallpapers"
+    preview_path = f"{home_dir}/Pictures/.wallpapers"
+    size = 128, 128
 
-wallpaper = "idk.png"
-resize_images(wallpaper, path, preview_path, size)
+    wallpaper = "idk.png"
+    resize_images(wallpaper, path, preview_path, size)
