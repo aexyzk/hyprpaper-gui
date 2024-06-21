@@ -15,7 +15,8 @@ def main():
     make_folder(path, preview_path)
     padding = 10
     size = 128
-    column_count = 8
+    size = 250
+    column_count = 5
     
     screen_width = ((column_count * (size + padding)) + padding) + 10
 
@@ -40,6 +41,7 @@ def main():
 
     running = True
     while running:
+        clamp = (preview_images_links[1] * -(size + padding)) + screen.get_height() - size - padding
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 running = False
@@ -59,9 +61,10 @@ def main():
 
                 if event.button == 4:
                     offset = min(offset + mouse_sens, 0)
+                    #offset += mouse_sens
                 elif event.button == 5:
-                    clamp = (preview_images_links[1] * -size) + screen.get_height() - size
-                    offset = max(offset - mouse_sens - 48, clamp - 48)
+                    offset = max(offset - mouse_sens - 48, clamp)
+                    #offset -= mouse_sens
 
         screen.fill((25,25,25))
         for i, image in enumerate(images):
@@ -72,7 +75,7 @@ def main():
 
             pygame.draw.rect(screen, (35,35,35), rect)
         render(screen, images, offset, size)
-        bar(screen, assets, bar_rect, scroll_bar_rect, refresh_button_rect)
+        bar(screen, assets, bar_rect, scroll_bar_rect, refresh_button_rect, offset, clamp)
         pygame.display.flip()
         clock.tick(60)
 
@@ -81,13 +84,19 @@ def render(screen, images, offset, size):
         image_size = image[0].get_size()
         screen.blit(image[0], (image[1][0], image[1][1] + offset))
 
-def bar(screen, assets, bar_rect, scroll_bar_rect, refresh_button_rect):
+def bar(screen, assets, bar_rect, scroll_bar_rect, refresh_button_rect, offset, clamp):
     # bar
     pygame.draw.rect(screen, (40,40,40), bar_rect)
     screen.blit(assets["refresh_button"], refresh_button_rect.topleft)
 
     # scroll bar
     pygame.draw.rect(screen, (45,45,45), scroll_bar_rect)
+    # scroll handle
+    handle_size = ((clamp * screen.get_height()) * -1)
+    handle_pos = (-clamp * -offset - handle_size) // screen.get_height()
+    pygame.draw.rect(screen, (80,80,80), pygame.Rect(screen.get_width() - 10, handle_pos, 10, handle_size))
+    print(f"{screen.get_height()} {-offset}")
+    print(handle_pos)
 
 def get_preview_images(preview_images_links, _path, size, padding):
     images = []
