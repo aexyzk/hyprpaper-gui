@@ -1,3 +1,5 @@
+This project is **not** dead, i've just been very busy with school work! However I've made some good progress, and image loading is much faster; taking advantage of caching.
+
 # hyprpaper-gui
 A Wallpaper changer for Hyprpaper, written in Python with Pygame. I find it very frustrating to change wallpapers with hyprpaper, because you have to go to the configuration file, change the link to the file, then save it and restart the daemon. Soooo i wrote this! x3
 
